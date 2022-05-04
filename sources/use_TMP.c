@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Function for reset all sensors using General Calls, after power on the cables.
 ///////////////////////////////////////////////////////////////////////////////
-void resetSensors(){
+void resetAllSensors(){
     for (uint8_t mux = 0 ; mux < 8; mux++){
         mux_select(mux);
         __delay_ms(10);
@@ -19,33 +19,51 @@ void resetSensors(){
         i2c_send(0x00);             //General Call Address
         i2c_send(0b00000110);       //Reset command
         i2c_stop();
+        __delay_ms(10);
     }
 }
+///////////////////////////////////////////////////////////////////////////////
+//Function for configuration of a sensors in the selected cable for start conversion.
+//This function also returns a byte with the status of the sensor
+// 1 if ACK is received, 0 if Its not
+///////////////////////////////////////////////////////////////////////////////
+uint8_t configSensor(uint8_t sensorNumber,TMP_RESOLUTION_CONFIG config){
+    uint8_t W_address = 0b10010000 + (sensorNumber << 1); //Define W_address
+    i2c_start_com();
+    uint8_t status = i2c_send(W_address);
+    if (status == 0) {
+        //AKC Received
+        i2c_send(0x01);       //Write configurations register
+        i2c_send(config << 5);// Set resoution an continuous conversion
+    }
+    i2c_stop();
+    return !status;         // Inverse only for convention
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//Function for configuration of all sensors in a cable for start conversion.
+//This function also returns a byte with the status of the sensors
+///////////////////////////////////////////////////////////////////////////////
+uint8_t configCable(uint8_t cableNumber,TMP_RESOLUTION_CONFIG config){
+    mux_select(cableNumber);
+    uint8_t status = 0;
+    __delay_ms(10);
+    int i;
+    for (i = 0; i < 8; i++) {
+        status = status | (configSensor(i,config) << i);
+        __delay_ms(10);
+    }
+    return status;    
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //Function for configuration of all sensor before start making readings.
 //This function also modify the status array, for detect bad (or missing) sensors.
 ///////////////////////////////////////////////////////////////////////////////
-void configSensors(uint8_t *status){
-    uint8_t auxstatus = 0;
-    uint8_t W_address = 0;
-        for (uint8_t mux = 0 ; mux < 8; mux++){
-            mux_select(mux);                                    //Select cable
-            auxstatus = 0;
-            __delay_ms(10);                     
-            for(uint8_t sensor = 0 ; sensor < 8 ; sensor++){
-                W_address = 0b10010000 + (sensor << 1); //Define W_address
-                i2c_start_com();
-                //Make a right rotation, so the LSB of auxstatus is Sensor#0
-                auxstatus >>= 1;
-                //"i2c_read" give 0x01 if no sensors, this line asign it to MSB
-                auxstatus += (i2c_send(W_address) << 7);
-                i2c_send(0x01);     //Write configurations register
-                i2c_send(0x60);     //Set 12bits resolution, continous conversion
-                i2c_stop();
-            }
-            //Asign to status array the complement of auxstatus.
-            //So 0 means no sensor, 1 means sensor present.
-            status[mux] = ~auxstatus;           
+void configAllSensors(TMP_RESOLUTION_CONFIG config, uint8_t *status){
+    int cablenumber;
+    for (cablenumber = 0; cablenumber < 8; cablenumber++) {
+        status[cablenumber] = configCable(cablenumber,config);
     }
 }
 
@@ -106,18 +124,5 @@ void read_sensors(uint16_t *temp, uint8_t *status ){
 void clean_temp(uint16_t *temp){
     for (uint8_t i = 0; i < 64; i++){
         temp[i] = 0;
-    }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//Function to make bigger delays (>100ms aprox).
-//It does not consider the time that take the "for" loop.
-//The aplication does not need that level of precision.
-//Delay time is time*multi.
-///////////////////////////////////////////////////////////////////////////////
-void delaymsX10(uint8_t multi){
-    for(int i = 0; i < multi; i++){
-        __delay_ms(10);
     }
 }

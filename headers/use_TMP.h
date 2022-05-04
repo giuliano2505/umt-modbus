@@ -17,13 +17,20 @@ extern "C" {
 #include "platform_i2c.h"
     
 
+typedef enum
+{
+    RESOLUTION_9_BITS = 0,
+    RESOLUTION_10_BITS = 1,
+    RESOLUTION_11_BITS = 2,
+    RESOLUTION_12_BITS = 3
+} TMP_RESOLUTION_CONFIG;
+    
 ////////////////////////////////////////////////////////////////////////////////
-void resetSensors (void);    
-void configSensors(uint8_t *status);
-uint16_t read_temperature(uint8_t add);
-void read_sensors(uint16_t *temp, uint8_t *status );
-void clean_temp(uint16_t *temp);
-void delaymsX10(uint8_t multi);   
+void resetAllSensors (void);    
+void configAllSensors(TMP_RESOLUTION_CONFIG, uint8_t *);
+uint16_t read_temperature(uint8_t);
+void read_sensors(uint16_t *, uint8_t * );
+void clean_temp(uint16_t *);
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef	__cplusplus
 }
