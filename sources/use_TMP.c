@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Function for reset all sensors using General Calls, after power on the cables.
 ///////////////////////////////////////////////////////////////////////////////
-void reset_sensors(){
+void resetSensors(){
     for (uint8_t mux = 0 ; mux < 8; mux++){
         mux_select(mux);
         __delay_ms(10);
@@ -25,7 +25,7 @@ void reset_sensors(){
 //Function for configuration of all sensor before start making readings.
 //This function also modify the status array, for detect bad (or missing) sensors.
 ///////////////////////////////////////////////////////////////////////////////
-void config_sensors(uint8_t *status){
+void configSensors(uint8_t *status){
     uint8_t auxstatus = 0;
     uint8_t W_address = 0;
         for (uint8_t mux = 0 ; mux < 8; mux++){

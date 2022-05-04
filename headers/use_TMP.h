@@ -18,8 +18,8 @@ extern "C" {
     
 
 ////////////////////////////////////////////////////////////////////////////////
-void reset_sensors (void);    
-void config_sensors(uint8_t *status);
+void resetSensors (void);    
+void configSensors(uint8_t *status);
 uint16_t read_temperature(uint8_t add);
 void read_sensors(uint16_t *temp, uint8_t *status );
 void clean_temp(uint16_t *temp);
