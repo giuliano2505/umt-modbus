@@ -169,7 +169,8 @@ void main(void) {
         X10msDelay(100);
         gpio_set(LED0_pin, 1);
         X10msDelay(100);
-        //printf("%d \n",dipswitch_address_read());
+        
+        //printf("%d \n",read_DIPSwitch_address());
         /*
         gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
         __delay_ms(10);

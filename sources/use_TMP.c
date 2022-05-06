@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Function for reset all sensors using General Calls, after power on the cables.
 ///////////////////////////////////////////////////////////////////////////////
-void resetAllSensors(){
+void reset_all_sensors(){
     for (uint8_t mux = 0 ; mux < 8; mux++){
         mux_select(mux);
         __delay_ms(10);
@@ -22,107 +22,122 @@ void resetAllSensors(){
         __delay_ms(10);
     }
 }
-///////////////////////////////////////////////////////////////////////////////
-//Function for configuration of a sensors in the selected cable for start conversion.
-//This function also returns a byte with the status of the sensor
-// 1 if ACK is received, 0 if Its not
-///////////////////////////////////////////////////////////////////////////////
-uint8_t configSensor(uint8_t sensorNumber,TMP_RESOLUTION_CONFIG config){
+
+/**
+ * Function for configuration of each sensor installed on a cable
+ * @param config TMP_RESOLUTION_CONFIG Configuration to be used
+ * @param sensorNumber uint8_t Sensor to be configurated
+ * @return uint8_t Sensor status
+ */
+uint8_t config_sensor(TMP_RESOLUTION_CONFIG config, uint8_t sensorNumber){
     uint8_t W_address = 0b10010000 + (sensorNumber << 1); //Define W_address
     i2c_start_com();
     uint8_t status = i2c_send(W_address);
     if (status == 0) {
         //AKC Received
-        i2c_send(0x01);       //Write configurations register
-        i2c_send(config << 5);// Set resoution an continuous conversion
+        i2c_send(CONFIG_REGISTER_ADD);       //Write configurations register
+        i2c_send(config);               // Set resoution an continuous conversion
     }
     i2c_stop();
     return !status;         // Inverse only for convention
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//Function for configuration of all sensors in a cable for start conversion.
-//This function also returns a byte with the status of the sensors
-///////////////////////////////////////////////////////////////////////////////
-uint8_t configCable(uint8_t cableNumber,TMP_RESOLUTION_CONFIG config){
+/**
+ * Function for the configuration of all installed sensors on a single cable
+ * @param config TMP_RESOLUTION_CONFIG Config to be used
+ * @param cableNumber uint8_t Cable to be configurated
+ * @return uint8_t Cable status
+ */
+uint8_t config_cable(TMP_RESOLUTION_CONFIG config, uint8_t cableNumber){
     mux_select(cableNumber);
     uint8_t status = 0;
     __delay_ms(10);
     int i;
     for (i = 0; i < 8; i++) {
-        status = status | (configSensor(i,config) << i);
+        status = status | (config_sensor(i,config) << i);
         __delay_ms(10);
     }
     return status;    
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//Function for configuration of all sensor before start making readings.
-//This function also modify the status array, for detect bad (or missing) sensors.
-///////////////////////////////////////////////////////////////////////////////
-void configAllSensors(TMP_RESOLUTION_CONFIG config, uint8_t *status){
+/**
+ * Function for the configuration of all cables installed in a UMT
+ * @param status uint8_t vector for sensors status
+ * @param config TMP_RESOLUTION_CONFIG Config to be used
+ */
+void config_all_sensors(TMP_RESOLUTION_CONFIG config, uint8_t *status){
     int cablenumber;
     for (cablenumber = 0; cablenumber < 8; cablenumber++) {
-        status[cablenumber] = configCable(cablenumber,config);
+        status[cablenumber] = config_cable(cablenumber,config);
     }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-//Function to read only one sensor, with the given W_address. This function no
-//Select the mux, so it have to be configurated before call it.
-//It does not return the TMP100 format "0xAAA0", but "0xAAA".
-///////////////////////////////////////////////////////////////////////////////
-uint16_t read_temperature(uint8_t add){
-    uint16_t temp = 0;
+/**
+ * Function for reading only one sensor, given the sensor number. This function
+ *  does not set the mux for cable selection, this must be done before calling it.
+ * @param sensorNumber  uint8_t Sensor number to be read
+ * @param status uint8_t pointer for sensor status
+ * @return uint16_t Temperature in format 0x0AAA (or 0x800, if sensor do not response)
+ */
+uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
+    uint16_t temperature = 0;
+    uint8_t address = 0b10010000 + (sensorNumber << 1); //Define write address
     //Request of data
     i2c_start_com();
-    i2c_send(add);          //Send W_address to sensors
-    i2c_send(0x00);         //Send TEMP register write in pointer
+    i2c_send(address);                  //Send W_address to sensors
+    i2c_send(TEMP_REGISTER_ADD);        //Send TEMP register write in pointer
     i2c_stop();
-    //Set original address (Write_add) to Read_add
-    add += 1;
+    
+    __delay_ms(1);
+    address += 1;                       //Reading address    
     i2c_start_com();
-    i2c_send(add);          //Send R_address to sensors
-    temp = i2c_receive();   //Receive 1 byte from sensors (MSBs)
-    temp <<= 4;             //Rotate 4 bits to left, to make place for LSBs
-    temp += (i2c_receive() >> 4); //Add the 4 LSBs from the received byte to temp
+    *status = !i2c_send(address);
+    if (status) {
+        temperature = i2c_receive();   //Receive 1 byte from sensors (MSBs)
+        temperature <<= 4;             //Rotate 4 bits to left, to make place for LSBs
+        temperature += (i2c_receive() >> 4); //Add the 4 LSBs from the received byte to temp
+    } else{
+        temperature = 0x800;
+    }
     i2c_stop();
-    return temp;
+    
+    return temperature;
 }
-///////////////////////////////////////////////////////////////////////////////
-//Function to read all sensors on the UMT, It takes the status array so does 
-//not read all sensors unnecessarily. Modify the temperature array with the readed
-//temperature or, if sensor is not present set it to 0x800.
-//This is only for security, the status array has data about operative sensors too.
-///////////////////////////////////////////////////////////////////////////////
-void read_sensors(uint16_t *temp, uint8_t *status ){
-    uint8_t index = 0;
-    for (uint8_t mux = 0 ; mux < 8; mux++){
-        mux_select(mux);                                //Select cable
+/**
+ * Funtion for select a cable and read a sensor
+ * @param cableNumber Cable to be selected
+ * @param sensorNumber Sensor to be read
+ * @return 
+ */
+uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber){
+    uint8_t status;
+    mux_select(cableNumber);
+    __delay_ms(10);
+    uint16_t temperature = read_sensor(sensorNumber, &status);
+    if(status){
+        return temperature;
+    } else {
+        return 0x800;
+    }
+}
+
+
+
+/**
+ * Function for reading all sensors on a UMT
+ * @param temperature  uint16_t vector pointer to store temperature readings
+ * @return uint8_t number of sensors that awnser back the reading
+ */
+uint8_t read_all_sensors(uint16_t * temperature){
+    uint8_t numberSensorsOK = 0;
+    uint8_t status = 0;
+    for (int activeCable = 0; activeCable < 8; activeCable++) {
+        mux_select(activeCable);
         __delay_ms(10);
-        for(uint8_t sensor = 0 ; sensor < 8 ; sensor++){
-            uint8_t W_address = 0b10010000 + (sensor << 1); //Define W_address
-            if (status[mux] & (1 << sensor)){
-                //If status bit is 1, read temperature
-                temp[index] += read_temperature(W_address);
-            }
-            else{
-                //If status bit is 0, set 0x800
-                temp[index] += 0x800; // -128C (Irreal temperature)
-            }
-            index++;
+        for (int sensorNumber = 0; sensorNumber < 8; sensorNumber++) {
+            temperature[activeCable * 8 + sensorNumber] = read_sensor(sensorNumber,&status);
+            numberSensorsOK += status;
         }
     }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//Function to initialize on 0 all temperature.
-//Here only to make code easier to understand later.
-///////////////////////////////////////////////////////////////////////////////
-void clean_temp(uint16_t *temp){
-    for (uint8_t i = 0; i < 64; i++){
-        temp[i] = 0;
-    }
+    return numberSensorsOK;
 }

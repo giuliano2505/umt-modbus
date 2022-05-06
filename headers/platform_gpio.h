@@ -37,7 +37,7 @@ uint8_t gpio_read(PLAT_GPIO_ENUM gpio);
 void inline mux_select(uint8_t num);
 
 
-uint8_t dipswitch_address_read(void);
+uint8_t read_DIPSwitch_address(void);
 
 uint8_t inline is_silo_full(void);
 

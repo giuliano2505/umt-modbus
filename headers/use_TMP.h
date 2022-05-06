@@ -19,18 +19,20 @@ extern "C" {
 
 typedef enum
 {
-    RESOLUTION_9_BITS = 0,
-    RESOLUTION_10_BITS = 1,
-    RESOLUTION_11_BITS = 2,
-    RESOLUTION_12_BITS = 3
+    RESOLUTION_9_BITS = (0 << 5),
+    RESOLUTION_10_BITS = (1 << 5),
+    RESOLUTION_11_BITS = (2 << 5),
+    RESOLUTION_12_BITS = (3 << 5)
 } TMP_RESOLUTION_CONFIG;
+
+#define TEMP_REGISTER_ADD 0x00
+#define CONFIG_REGISTER_ADD 0x01
+#define TLOW_REGISTER_ADD 0x02
+#define THIGH_REGISTER_ADD 0x03
+
     
 ////////////////////////////////////////////////////////////////////////////////
-void resetAllSensors (void);    
-void configAllSensors(TMP_RESOLUTION_CONFIG, uint8_t *);
-uint16_t read_temperature(uint8_t);
-void read_sensors(uint16_t *, uint8_t * );
-void clean_temp(uint16_t *);
+
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef	__cplusplus
 }

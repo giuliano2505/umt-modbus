@@ -56,7 +56,7 @@ void inline mux_select(uint8_t num)
     gpio_set(SADD2_pin, (num >> 2) & 0x01);
 }
 
-uint8_t dipswitch_address_read(void)
+uint8_t read_DIPSwitch_address(void)
 {
     uint8_t ret = 0;
     ret |= gpio_read(UADD0_pin) << 0;
