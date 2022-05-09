@@ -8,9 +8,11 @@
 #include "use_TMP.h"
 #include "platform.h"
 
-///////////////////////////////////////////////////////////////////////////////
-//Function for reset all sensors using General Calls, after power on the cables.
-///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Function for reset all sensor using the General Call Address
+ * For use after power-on the cables
+ */
 void reset_all_sensors(){
     for (uint8_t mux = 0 ; mux < 8; mux++){
         mux_select(mux);

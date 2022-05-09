@@ -16,7 +16,7 @@ extern "C" {
 #include "modbus_crc.h"
 
 //Last address that should be saved to EEPROM
-#define MODBUS_HR_LAST_PERSIST_ADD  2    
+#define MODBUS_HR_LAST_PERSIST_ADD  0    
 
 typedef enum
 {
@@ -71,16 +71,18 @@ typedef enum
 //Holding Registers address definitions
 typedef enum
 {
-    MODBUS_HR_ADDRESS = 0,
-    MODBUS_HR_BAUDRATE = 1,
-    MODBUS_HR_TEST = 2
+    MODBUS_HR_BAUDRATE = 0,
+    MODBUS_HR_ACTIVE_SENSORS = 1,
+    MODBUS_HR_FIRST_STATUS_CABLE = 2,
+    MODBUS_HR_FIRST_TEMPERATURE = 10  
+
 } MODBUS_HR_DEF;
 
 typedef struct
 {
     uint8_t             Address;
 
-    uint16_t            HoldingRegisters[3];
+    uint16_t            HoldingRegisters[74];
     uint16_t            InputRegisters[5];
 
     char                Modbus_Buffer[250];

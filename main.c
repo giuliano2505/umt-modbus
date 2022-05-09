@@ -59,16 +59,10 @@ void StoreConfigParametersToEEPROM(void)
 }
 
 void StoreDefaultParametersToEEPROM(void)
-{
-    /* Address */
-    Slave.HoldingRegisters[MODBUS_HR_ADDRESS] = 1;  
-    
+{    
     /* Baudrate */
     Slave.HoldingRegisters[MODBUS_HR_BAUDRATE] = 9600;  
     
-    /* TEST Register */
-    Slave.HoldingRegisters[MODBUS_HR_TEST] = 0xCAFE;      
-        
     StoreConfigParametersToEEPROM();
 }
 
@@ -95,16 +89,6 @@ MODBUS_EXCEPTIONS CallbackOnSingleHoldingRegisterUpdate(uint16_t RegisterNumber,
 {
     switch (RegisterNumber)
     {
-        case MODBUS_HR_ADDRESS:
-        {
-            if (NewValue > 240)
-            {
-                return ILLEGAL_DATA_VALUE;
-            }
-            break;
-        }
-        
-        
         case MODBUS_HR_BAUDRATE:
         {
             switch (NewValue)
@@ -134,6 +118,7 @@ void CallbackOnHoldingRegisterUpdateCorrectly(void)
     /* Apply the new parameters */
     InitUSART(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);    
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
+    //We have to read address from DIPSwitchs
     ModbusSetAddress(Slave.HoldingRegisters[MODBUS_HR_ADDRESS]);  
 }
 
