@@ -21,6 +21,7 @@ void pwm_init(void)
     // CCPR2 = PWMDuty/(Tosc*TMR2Prescaler)
     CCPR2L = (DC / 4);
     CCP2CONbits.DC2B = (uint32_t)DC & 0x03;
+    
 
     CCP2CONbits.CCP2M = 0b1100;             // PWM Mode
     T2CONbits.T2CKPS = PWM_PRESCALER_REGS;
@@ -39,6 +40,6 @@ void platform_init(void)
     init_gpio();
     pwm_init();
     //uart_init();
-    //i2c_init();    
+    i2c_init();    
     ei();
 }

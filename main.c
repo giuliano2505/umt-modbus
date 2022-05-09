@@ -4,6 +4,14 @@
  *
  * Created on 12 de abril de 2022, 13:58
  */
+
+/*
+#pragma warning disable 356     //Implicit float to integer
+#pragma warning disable 520     //Function Never called  
+#pragma warning disable 751     //Arithmetic overflow in constant expression
+#pragma warning disable 752     //Conversion to sherter data type
+*/
+
 #include "config_bits.h"
 #include <string.h>
 #include <stdio.h>
@@ -15,8 +23,8 @@
 #include "modbus_timer.h"
 #include "modbus_rtu.h"
 #include "platform_uart.h"
-//#include "platform_i2c.h"
-//#include "use_TMP.h"
+#include "platform_i2c.h"
+#include "use_TMP.h"
 
 extern MODBUS_SLAVE Slave;
 
@@ -106,9 +114,11 @@ MODBUS_EXCEPTIONS CallbackOnSingleHoldingRegisterUpdate(uint16_t RegisterNumber,
                 }
             }            
         }
+        default:
+        {
+            return ILLEGAL_DATA_ADDRESS;
+        }
     }
-
-    return NO_ERROR;
 }
 
 void CallbackOnHoldingRegisterUpdateCorrectly(void)
@@ -119,7 +129,17 @@ void CallbackOnHoldingRegisterUpdateCorrectly(void)
     InitUSART(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);    
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
     //We have to read address from DIPSwitchs
-    ModbusSetAddress(Slave.HoldingRegisters[MODBUS_HR_ADDRESS]);  
+    ModbusSetAddress(read_DIPSwitch_address());  
+}
+
+void InitializeHoldingRegisters(void){
+    Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = 0;
+    for (int i = 0; i < 8; i++) {
+        Slave.HoldingRegisters[MODBUS_HR_FIRST_STATUS_CABLE + i] = 0;
+    }
+    for (int i = 0; i < 64; i++) {
+        Slave.HoldingRegisters[MODBUS_HR_FIRST_TEMPERATURE + i] = 0x800;
+    }
 }
 
 
@@ -135,7 +155,7 @@ void X10msDelay(int n){
 
 
 void main(void) {
-    //Init all needed (GPIOs, UART, I2C, ..)
+    //Init all needed (GPIOs, I2C, ..)
     platform_init();
     
     INTCONbits.GIE = 1;
@@ -147,23 +167,26 @@ void main(void) {
     InitTimer();
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
     ModbusResetSlave();
-    ModbusSetAddress(Slave.HoldingRegisters[MODBUS_HR_ADDRESS]);
+    ModbusSetAddress(read_DIPSwitch_address());
+    
+    InitializeHoldingRegisters();
     
     while (1) {
         gpio_set(LED0_pin, 0);
         X10msDelay(100);
         gpio_set(LED0_pin, 1);
         X10msDelay(100);
-        
-        //printf("%d \n",read_DIPSwitch_address());
-        /*
-        gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
-        __delay_ms(10);
-        reset_sensors(); //Software reset of all cables for security
-        __delay_ms(10);
-        config_sensors(status); //Config all sensors with 12 bits resolution
-
-        gpio_set(SVCC_EN_pin, 1); //Turn off Sensor power
-         */
+        Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = read_DIPSwitch_address();
     }
+}
+
+void TakeReading(void){
+    gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
+    gpio_set(LED1_pin, 0);
+    __delay_ms(10);
+    reset_all_sensors();
+    __delay_ms(10);
+    gpio_set(SVCC_EN_pin, 1); //Turn off Sensor power
+    gpio_set(LED1_pin, 1);
+    
 }

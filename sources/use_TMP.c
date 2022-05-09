@@ -111,11 +111,10 @@ uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
  * @param sensorNumber Sensor to be read
  * @return 
  */
-uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber){
-    uint8_t status;
+uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8_t * status){
     mux_select(cableNumber);
     __delay_ms(10);
-    uint16_t temperature = read_sensor(sensorNumber, &status);
+    uint16_t temperature = read_sensor(sensorNumber, status);
     if(status){
         return temperature;
     } else {

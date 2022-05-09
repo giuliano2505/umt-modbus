@@ -27,18 +27,12 @@ typedef enum
     PLAT_GPIOS(FILL_GPIO_ENUM)
 } PLAT_GPIO_ENUM;
 
-
-
 void init_gpio(void);
-
 void gpio_set(PLAT_GPIO_ENUM gpio, uint8_t val);
 uint8_t gpio_read(PLAT_GPIO_ENUM gpio);
 
 void inline mux_select(uint8_t num);
-
-
 uint8_t read_DIPSwitch_address(void);
-
 uint8_t inline is_silo_full(void);
 
 

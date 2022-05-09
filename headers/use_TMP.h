@@ -30,10 +30,12 @@ typedef enum
 #define TLOW_REGISTER_ADD 0x02
 #define THIGH_REGISTER_ADD 0x03
 
-    
-////////////////////////////////////////////////////////////////////////////////
+void reset_all_sensors(void);
+void config_all_sensors(TMP_RESOLUTION_CONFIG , uint8_t *);
+uint16_t read_sensor(uint8_t, uint8_t * );
+uint16_t read_sensor_with_cable(uint8_t , uint8_t , uint8_t * );
+uint8_t read_all_sensors(uint16_t * );
 
-////////////////////////////////////////////////////////////////////////////////
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
