@@ -152,11 +152,40 @@ void X10msDelay(int n){
 }
 
 
+void TakeReading(void){
+    uint16_t temperatures[8];
+    uint8_t status = 0;
+    uint8_t totalActiveSensors = 0;
+    gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
+    gpio_set(LED1_pin, 0);
+    __delay_ms(10);
+    reset_all_sensors();    //CHECK I2C
+    __delay_ms(10);
+    int cableNumber;
+    for (cableNumber = 0; cableNumber < 8; cableNumber++) {
+        totalActiveSensors += ReadAllSensorsOnCable(cableNumber,&status,temperatures);
+        Slave.HoldingRegisters[MODBUS_HR_FIRST_STATUS_CABLE + cableNumber] = status;
+        int sensorNumber;
+        for (sensorNumber = 0; sensorNumber < 8; sensorNumber++) {
+            Slave.HoldingRegisters[MODBUS_HR_FIRST_TEMPERATURE + 8 * cableNumber + sensorNumber] = temperatures[sensorNumber];
+        }
+    }
+    Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = totalActiveSensors;
+    
+    gpio_set(SVCC_EN_pin, 1); //Turn off Sensor power
+    gpio_set(LED1_pin, 1);
+    
+}
+
 
 
 void main(void) {
     //Init all needed (GPIOs, I2C, ..)
     platform_init();
+
+    //FOR DISABLING A UMT SET ADDRESS == 0
+    if(read_DIPSwitch_address() == 0)
+        while(1);
     
     INTCONbits.GIE = 1;
     INTCONbits.PEIE = 1;
@@ -168,9 +197,10 @@ void main(void) {
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
     ModbusResetSlave();
     ModbusSetAddress(read_DIPSwitch_address());
-    
     InitializeHoldingRegisters();
-    
+    X10msDelay(100);
+    TakeReading();
+    X10msDelay(100);    
     while (1) {
         gpio_set(LED0_pin, 0);
         X10msDelay(100);
@@ -180,13 +210,3 @@ void main(void) {
     }
 }
 
-void TakeReading(void){
-    gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
-    gpio_set(LED1_pin, 0);
-    __delay_ms(10);
-    reset_all_sensors();
-    __delay_ms(10);
-    gpio_set(SVCC_EN_pin, 1); //Turn off Sensor power
-    gpio_set(LED1_pin, 1);
-    
-}
