@@ -122,6 +122,21 @@ uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8
     }
 }
 
+uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, uint16_t * temperature){
+    uint8_t acumulator = 0;
+    uint8_t sensorStatus = 0;
+    uint8_t auxStatus = 0;
+    mux_select(cableNumber);
+    __delay_ms(10);
+    for ( int i= 0;  i < 8; i++) {
+        temperature[i] = read_sensor(i,&sensorStatus);
+        acumulator += sensorStatus;
+        auxStatus |= (sensorStatus << i);
+    }
+    *status = auxStatus;
+    return acumulator;
+}
+
 
 
 /**
