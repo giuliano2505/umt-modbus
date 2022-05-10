@@ -29,7 +29,7 @@
 
 // CONFIG4L
 #pragma config STVR = ON        // Stack Full/Underflow Reset Enable bit (Stack Full/Underflow will cause RESET)
-#pragma config LVP = ON         // Low Voltage ICSP Enable bit (Low Voltage ICSP enabled)
+#pragma config LVP = OFF         // Low Voltage ICSP Enable bit (Low Voltage ICSP enabled)
 
 // CONFIG5L
 #pragma config CP0 = OFF        // Code Protection bit (Block 0 (000200-001FFFh) not code protected)
