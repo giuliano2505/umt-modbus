@@ -64,7 +64,7 @@ uint8_t read_DIPSwitch_address(void)
     ret |= gpio_read(UADD2_pin) << 2;
     ret |= gpio_read(UADD3_pin) << 3;
     
-    return ret;
+    return (ret ^ 0x0F);
 }
 
 uint8_t inline is_silo_full(void)
