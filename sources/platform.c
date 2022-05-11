@@ -7,9 +7,14 @@
 
 
 #include "platform.h"
+#include <timers.h>
 #include "platform_gpio.h"
 #include "platform_uart.h"
 #include "platform_i2c.h"
+
+
+#define SetTimer0State(x) { T0CONbits.TMR0ON = x; }
+
 
 void pwm_init(void)
 {
@@ -28,6 +33,19 @@ void pwm_init(void)
     T2CONbits.TMR2ON = 1;                   // ON
 }
 
+void InitTimerSample(void){
+        /* Sets the Timer0 with 1uS tick base */
+#if (_XTAL_FREQ == 16000000)
+    OpenTimer0( TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT &
+               T0_PS_1_128 );    
+#elif (_XTAL_FREQ == 4000000)
+    OpenTimer0(TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT &
+               T0_PS_1_32 );
+#endif
+    SetTimer0State(0);
+}
+
+
 #ifndef CPU_FREQ_NON_CHANGEABLE
 uint32_t platform_get_cpu_frequency(void)
 {
@@ -41,5 +59,4 @@ void platform_init(void)
     pwm_init();
     //uart_init();
     i2c_init();    
-    ei();
 }

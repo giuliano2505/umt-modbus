@@ -68,6 +68,7 @@ uint32_t platform_get_cpu_frequency(void);
 #endif
 
 void platform_init(void);
+void InitTimerSample(void);
 
 #ifdef	__cplusplus
 }

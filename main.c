@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <usart.h>
+#include <timers.h>
 #include <EEP.h>
 
 #include "platform.h"
@@ -27,12 +28,28 @@
 #include "use_TMP.h"
 
 extern MODBUS_SLAVE Slave;
+uint8_t takeReadingFlag = 0;
 
 void interrupt isr(void)
 {
     
     //We should implement here a flag for start a reading when T2 finish
-    
+        if (INTCON1bits.INT0IF)
+    {
+#if (_XTAL_FREQ == 4000000)  
+        WriteTimer0(0);
+#elif (_XTAL_FREQ == 16000000)
+        WriteTimer0(0);
+#endif
+        
+        //Set flag for conversion
+        
+        takeReadingFlag = 1;
+        
+        gpio_set(LED1_pin, !gpio_read(LED1_pin)); //SHOULD TOGGLE EVERY SECOND
+        
+        INTCON1bits.INT0IF = 0;
+    }
     //This is for modbus use
     if (PIR1bits.TMR1IF)
     {
@@ -114,11 +131,21 @@ MODBUS_EXCEPTIONS CallbackOnSingleHoldingRegisterUpdate(uint16_t RegisterNumber,
                 }
             }            
         }
+        case MODBUS_HR_TIME_BW_READINGS:
+        {
+            if ((NewValue > 0) || (NewValue < 361)){
+                break;
+            } else {
+                return ILLEGAL_DATA_VALUE;
+            }
+        }
         default:
         {
             return ILLEGAL_DATA_ADDRESS;
         }
     }
+    return NO_ERROR;
+    
 }
 
 void CallbackOnHoldingRegisterUpdateCorrectly(void)
@@ -193,13 +220,14 @@ void main(void) {
     ReadParametersFromEEPROM();
 
     InitUSART(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
-    InitTimer();
+    InitTimerModbus();
+    InitTimerSample();
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
     ModbusResetSlave();
     ModbusSetAddress(read_DIPSwitch_address());
     InitializeHoldingRegisters();
     X10msDelay(100);
-    TakeReading();
+    //TakeReading();
     X10msDelay(100);    
     while (1) {
         gpio_set(LED0_pin, 0);
