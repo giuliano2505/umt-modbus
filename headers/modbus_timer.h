@@ -21,7 +21,7 @@ typedef enum
 } MODBUS_TIMER_TIMEOUT;
 
 
-void InitTimer(void);
+void InitTimerModbus(void);
 void CallFromTimerISR(void);
 void SetBaudrate(int Baudrate);
 void SetTimerTimeout(MODBUS_TIMER_TIMEOUT timeout);

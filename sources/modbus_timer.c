@@ -13,7 +13,7 @@ int TimerLoad_5_Chars = 0;
 
 MODBUS_TIMER_TIMEOUT CurrentTimeoutMode = MODBUS_TIMER_TIMEOUT_1_5_CHARS;
 
-void InitTimer(void)
+void InitTimerModbus(void)
 {
     /* Sets the Timer1 with 1uS tick base */
 #if (_XTAL_FREQ == 16000000)
