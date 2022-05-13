@@ -39,6 +39,8 @@ extern "C" {
 #define UART_BPS            9600
 
 
+#define SetTimer0State(x) { T0CONbits.TMR0ON = x; }
+    
 /* GPIOs table */
 #define PLAT_GPIOS(d)                                   \
     d(SENSSL,       B, 0,  TRISTATE_INPUT,  VALUE_OFF)  \

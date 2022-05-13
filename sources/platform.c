@@ -13,7 +13,7 @@
 #include "platform_i2c.h"
 
 
-#define SetTimer0State(x) { T0CONbits.TMR0ON = x; }
+
 
 
 void pwm_init(void)
@@ -37,11 +37,12 @@ void InitTimerSample(void){
         /* Sets the Timer0 with 1uS tick base */
 #if (_XTAL_FREQ == 16000000)
     OpenTimer0( TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT &
-               T0_PS_1_128 );    
+               T0_PS_1_64 ); 
 #elif (_XTAL_FREQ == 4000000)
     OpenTimer0(TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT &
-               T0_PS_1_32 );
+               T0_PS_1_16 );
 #endif
+    WriteTimer0(3035);
     SetTimer0State(0);
 }
 
