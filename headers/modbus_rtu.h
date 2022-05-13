@@ -73,17 +73,18 @@ typedef enum
 {
     MODBUS_HR_BAUDRATE = 0,
     MODBUS_HR_TIME_BW_READINGS = 1,
-    MODBUS_HR_SILO_FULL = 2,
-    MODBUS_HR_ACTIVE_SENSORS = 3,
-    MODBUS_HR_FIRST_STATUS_CABLE = 4,
-    MODBUS_HR_FIRST_TEMPERATURE = 12  
+    MODBUS_HR_TAKEREADING = 2,
+    MODBUS_HR_SILO_FULL = 3,
+    MODBUS_HR_ACTIVE_SENSORS = 4,
+    MODBUS_HR_FIRST_STATUS_CABLE = 5,
+    MODBUS_HR_FIRST_TEMPERATURE = 13  
 } MODBUS_HR_DEF;
 
 typedef struct
 {
     uint8_t             Address;
 
-    uint16_t            HoldingRegisters[76];
+    uint16_t            HoldingRegisters[77];
     uint16_t            InputRegisters[5];
 
     char                Modbus_Buffer[250];
