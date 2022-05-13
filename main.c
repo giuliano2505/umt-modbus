@@ -11,7 +11,7 @@
 #pragma warning disable 751     //Arithmetic overflow in constant expression
 #pragma warning disable 752     //Conversion to sherter data type
 */
-
+#include <xc.h> 
 #include "config_bits.h"
 #include <string.h>
 #include <stdio.h>
@@ -29,26 +29,25 @@
 
 extern MODBUS_SLAVE Slave;
 uint8_t takeReadingFlag = 0;
+uint16_t secondsCounter = 0;
 
 void interrupt isr(void)
 {
     
     //We should implement here a flag for start a reading when T2 finish
-        if (INTCON1bits.INT0IF)
+    if (INTCON1bits.TMR0IF)
     {
-#if (_XTAL_FREQ == 4000000)  
-        WriteTimer0(0);
-#elif (_XTAL_FREQ == 16000000)
-        WriteTimer0(0);
-#endif
+        WriteTimer0(3035);
         
-        //Set flag for conversion
-        
-        takeReadingFlag = 1;
-        
-        gpio_set(LED1_pin, !gpio_read(LED1_pin)); //SHOULD TOGGLE EVERY SECOND
-        
-        INTCON1bits.INT0IF = 0;
+        if (secondsCounter > Slave.HoldingRegisters[MODBUS_HR_TIME_BW_READINGS]){
+            //Reset seconds counter
+            secondsCounter = 0;
+            takeReadingFlag = 1;
+        } else {
+            secondsCounter++;
+        }        
+ 
+        INTCON1bits.TMR0IF = 0;
     }
     //This is for modbus use
     if (PIR1bits.TMR1IF)
@@ -87,6 +86,8 @@ void StoreDefaultParametersToEEPROM(void)
 {    
     /* Baudrate */
     Slave.HoldingRegisters[MODBUS_HR_BAUDRATE] = 9600;  
+    /*Time between readings*/
+    Slave.HoldingRegisters[MODBUS_HR_TIME_BW_READINGS] = 60; 
     
     StoreConfigParametersToEEPROM();
 }
@@ -129,11 +130,22 @@ MODBUS_EXCEPTIONS CallbackOnSingleHoldingRegisterUpdate(uint16_t RegisterNumber,
                 {
                     return ILLEGAL_DATA_VALUE;
                 }
-            }            
+            }
+            break;            
         }
         case MODBUS_HR_TIME_BW_READINGS:
         {
-            if ((NewValue > 0) || (NewValue < 361)){
+            if ((NewValue >= 60) && (NewValue <= 21600)){
+                break;
+            } else {
+                return ILLEGAL_DATA_VALUE;
+            }
+        }
+        case MODBUS_HR_TAKEREADING:
+        {
+            if (NewValue > 0){
+                secondsCounter = 0;
+                takeReadingFlag = 1;
                 break;
             } else {
                 return ILLEGAL_DATA_VALUE;
@@ -151,7 +163,7 @@ MODBUS_EXCEPTIONS CallbackOnSingleHoldingRegisterUpdate(uint16_t RegisterNumber,
 void CallbackOnHoldingRegisterUpdateCorrectly(void)
 {
     StoreConfigParametersToEEPROM();
-    
+    __delay_ms(10);
     /* Apply the new parameters */
     InitUSART(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);    
     SetBaudrate(Slave.HoldingRegisters[MODBUS_HR_BAUDRATE]);
@@ -226,15 +238,18 @@ void main(void) {
     ModbusResetSlave();
     ModbusSetAddress(read_DIPSwitch_address());
     InitializeHoldingRegisters();
-    X10msDelay(100);
-    //TakeReading();
-    X10msDelay(100);    
+    SetTimer0State(1);
     while (1) {
         gpio_set(LED0_pin, 0);
         X10msDelay(100);
         gpio_set(LED0_pin, 1);
         X10msDelay(100);
-        Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = read_DIPSwitch_address();
+        if (takeReadingFlag) {
+            gpio_set(LED1_pin,!gpio_read(LED1_pin));
+            takeReadingFlag = 0;
+            Slave.HoldingRegisters[MODBUS_HR_TAKEREADING] = 0;
+        }
+
     }
 }
 
