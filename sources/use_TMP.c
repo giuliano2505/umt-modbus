@@ -67,10 +67,10 @@ uint8_t config_cable(TMP_RESOLUTION_CONFIG config, uint8_t cableNumber){
  * @param status uint8_t vector for sensors status
  * @param config TMP_RESOLUTION_CONFIG Config to be used
  */
-void config_all_sensors(TMP_RESOLUTION_CONFIG config, uint8_t *status){
+void config_all_sensors(TMP_RESOLUTION_CONFIG config){
     int cablenumber;
     for (cablenumber = 0; cablenumber < 8; cablenumber++) {
-        status[cablenumber] = config_cable(cablenumber,config);
+        config_cable(cablenumber,config);
     }
 }
 

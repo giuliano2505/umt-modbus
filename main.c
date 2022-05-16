@@ -198,8 +198,9 @@ void TakeReading(void){
     gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
     gpio_set(LED1_pin, 0);
     __delay_ms(10);
-    reset_all_sensors();    //CHECK I2C
-    __delay_ms(10);
+    reset_all_sensors();
+    config_all_sensors(RESOLUTION_12_BITS);
+    X10msDelay(100);
     int cableNumber;
     for (cableNumber = 0; cableNumber < 8; cableNumber++) {
         totalActiveSensors += ReadAllSensorsOnCable(cableNumber,&status,temperatures);
@@ -223,8 +224,11 @@ void main(void) {
     platform_init();
 
     //FOR DISABLING A UMT SET ADDRESS == 0
-    if(read_DIPSwitch_address() == 0)
+    if(read_DIPSwitch_address() == 0){
+        gpio_set(LED2_pin,0);
         while(1);
+    }
+        
     
     INTCONbits.GIE = 1;
     INTCONbits.PEIE = 1;
@@ -245,11 +249,12 @@ void main(void) {
         gpio_set(LED0_pin, 1);
         X10msDelay(100);
         if (takeReadingFlag) {
-            gpio_set(LED1_pin,!gpio_read(LED1_pin));
+            gpio_set(LED1_pin,0);
+            TakeReading();
             takeReadingFlag = 0;
             Slave.HoldingRegisters[MODBUS_HR_TAKEREADING] = 0;
+            gpio_set(LED1_pin,1);
         }
-
     }
 }
 

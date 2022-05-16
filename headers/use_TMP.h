@@ -31,7 +31,7 @@ typedef enum
 #define THIGH_REGISTER_ADD 0x03
 
 void reset_all_sensors(void);
-void config_all_sensors(TMP_RESOLUTION_CONFIG , uint8_t *);
+void config_all_sensors(TMP_RESOLUTION_CONFIG);
 uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status);
 uint16_t read_sensor_with_cable(uint8_t , uint8_t , uint8_t * );
 uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, uint16_t * temperature);
