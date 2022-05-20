@@ -192,6 +192,7 @@ void X10msDelay(int n){
 
 
 void TakeReading(void){
+    TMP_RESOLUTION_CONFIG TMPconfig = RESOLUTION_12_BITS;
     uint16_t temperatures[8];
     uint8_t status = 0;
     uint8_t totalActiveSensors = 0;
@@ -199,7 +200,7 @@ void TakeReading(void){
     gpio_set(LED1_pin, 0);
     __delay_ms(10);
     reset_all_sensors();
-    config_all_sensors(RESOLUTION_12_BITS);
+    config_all_sensors(TMPconfig);
     X10msDelay(100);
     int cableNumber;
     for (cableNumber = 0; cableNumber < 8; cableNumber++) {
@@ -229,7 +230,6 @@ void main(void) {
         while(1);
     }
         
-    
     INTCONbits.GIE = 1;
     INTCONbits.PEIE = 1;
     
@@ -243,6 +243,7 @@ void main(void) {
     ModbusSetAddress(read_DIPSwitch_address());
     InitializeHoldingRegisters();
     SetTimer0State(1);
+    takeReadingFlag = 1;
     while (1) {
         gpio_set(LED0_pin, 0);
         X10msDelay(100);

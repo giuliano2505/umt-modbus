@@ -72,7 +72,7 @@ uint8_t i2c_send(uint8_t data) {
     i2c_wait();             //Wait for conditions
     SSPBUF = data;          //Write data to send on SSPBUF (SSP buffer)
     i2c_wait();             //Wait por all data transmited
-    return  ACKSTAT;        //Return 0 if Tx was OK
+    return  SSPCON2bits.ACKSTAT;        //Return 0 if Tx was OK
 }
 
 /**

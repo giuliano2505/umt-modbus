@@ -54,9 +54,9 @@ uint8_t config_cable(TMP_RESOLUTION_CONFIG config, uint8_t cableNumber){
     mux_select(cableNumber);
     uint8_t status = 0;
     __delay_ms(10);
-    int i;
+    uint8_t i;
     for (i = 0; i < 8; i++) {
-        status = status | (config_sensor(i,config) << i);
+        status = status | (config_sensor(config,i) << i);
         __delay_ms(10);
     }
     return status;    
@@ -68,9 +68,9 @@ uint8_t config_cable(TMP_RESOLUTION_CONFIG config, uint8_t cableNumber){
  * @param config TMP_RESOLUTION_CONFIG Config to be used
  */
 void config_all_sensors(TMP_RESOLUTION_CONFIG config){
-    int cablenumber;
+    uint8_t cablenumber;
     for (cablenumber = 0; cablenumber < 8; cablenumber++) {
-        config_cable(cablenumber,config);
+        config_cable(config,cablenumber);
     }
 }
 
@@ -94,7 +94,7 @@ uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
     address += 1;                       //Reading address    
     i2c_start_com();
     *status = !i2c_send(address);
-    if (status) {
+    if (*status) {
         temperature = i2c_receive();   //Receive 1 byte from sensors (MSBs)
         temperature <<= 4;             //Rotate 4 bits to left, to make place for LSBs
         temperature += (i2c_receive() >> 4); //Add the 4 LSBs from the received byte to temp
