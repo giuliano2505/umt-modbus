@@ -32,10 +32,10 @@ typedef enum
 
 void reset_all_sensors(void);
 void config_all_sensors(TMP_RESOLUTION_CONFIG);
-uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status);
-uint16_t read_sensor_with_cable(uint8_t , uint8_t , uint8_t * );
-uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, uint16_t * temperature);
-uint8_t read_all_sensors(uint16_t * );
+int16_t read_sensor(uint8_t sensorNumber, uint8_t * status);
+int16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8_t * status);
+uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, int16_t * temperature);
+uint8_t read_all_sensors(int16_t * temperature);
 
 #ifdef	__cplusplus
 }

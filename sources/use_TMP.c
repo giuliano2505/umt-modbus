@@ -81,8 +81,8 @@ void config_all_sensors(TMP_RESOLUTION_CONFIG config){
  * @param status uint8_t pointer for sensor status
  * @return uint16_t Temperature in format 0x0AAA (or 0x800, if sensor do not response)
  */
-uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
-    uint16_t temperature = 0;
+int16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
+    int16_t temperature = 0;
     uint8_t address = 0b10010000 + (sensorNumber << 1); //Define write address
     //Request of data
     i2c_start_com();
@@ -101,6 +101,10 @@ uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
     } else{
         temperature = 0x800;
     }
+    //The tmp100 does twos compliment but has the negative bit in the wrong spot, so test for it and correct if needed.
+    if(temperature & (1<<11)){
+        temperature |= 0xF800; //Set bits 11 to 15 to 1s to get this reading into real twos compliment.
+    }
     i2c_stop();
     
     return temperature;
@@ -111,10 +115,10 @@ uint16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
  * @param sensorNumber Sensor to be read
  * @return 
  */
-uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8_t * status){
+int16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8_t * status){
     mux_select(cableNumber);
     __delay_ms(10);
-    uint16_t temperature = read_sensor(sensorNumber, status);
+    int16_t temperature = read_sensor(sensorNumber, status);
     if(status){
         return temperature;
     } else {
@@ -122,7 +126,7 @@ uint16_t read_sensor_with_cable(uint8_t cableNumber, uint8_t sensorNumber, uint8
     }
 }
 
-uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, uint16_t * temperature){
+uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, int16_t * temperature){
     uint8_t acumulator = 0;
     uint8_t sensorStatus = 0;
     uint8_t auxStatus = 0;
@@ -141,10 +145,10 @@ uint8_t ReadAllSensorsOnCable(uint8_t cableNumber, uint8_t * status, uint16_t * 
 
 /**
  * Function for reading all sensors on a UMT
- * @param temperature  uint16_t vector pointer to store temperature readings
+ * @param temperature  int16_t vector pointer to store temperature readings
  * @return uint8_t number of sensors that awnser back the reading
  */
-uint8_t read_all_sensors(uint16_t * temperature){
+uint8_t read_all_sensors(int16_t * temperature){
     uint8_t numberSensorsOK = 0;
     uint8_t status = 0;
     for (int activeCable = 0; activeCable < 8; activeCable++) {

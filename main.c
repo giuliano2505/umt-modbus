@@ -193,7 +193,7 @@ void X10msDelay(int n){
 
 void TakeReading(void){
     TMP_RESOLUTION_CONFIG TMPconfig = RESOLUTION_12_BITS;
-    uint16_t temperatures[8];
+    int16_t temperatures[8];
     uint8_t status = 0;
     uint8_t totalActiveSensors = 0;
     gpio_set(SVCC_EN_pin, 0); //Turn on Sensor power
