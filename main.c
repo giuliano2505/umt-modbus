@@ -249,6 +249,7 @@ void main(void) {
         X10msDelay(100);
         gpio_set(LED0_pin, 1);
         X10msDelay(100);
+        Slave.HoldingRegisters[MODBUS_HR_SILO_FULL] = is_silo_full();
         if (takeReadingFlag) {
             gpio_set(LED1_pin,0);
             TakeReading();
