@@ -13,3 +13,14 @@ Se incluye una hoja de calculo con el mapeo de esos holding registers.
 | 1 | 0x01 | Tiempo entre muestras (Segundos)   | 60 <= t <= 21600 |
 | 2 | 0x02 | Iniciar una medicion    | x > 0 Para iniciar|
 | 3 | 0x03 | Silo lleno | 0, 1 |
+| 4 | 0x04 | Sensores activos desde ultima lectura | 0, 64 |
+| 5 - 12 | 0x05 - 0x0C | Sensores activos por cable | 0 , 255 |
+| 13 - 20 | 0x0D - 0x14 | Temperatura cable 0 - Sensor 0 al 7  | 0 - 4096 |
+| 21 - 28 | 0x15 - 0x1C | Temperatura cable 1 - Sensor 0 al 7  | 0 - 4096 |
+| 29 - 36 | 0x1D - 0x24 | Temperatura cable 2 - Sensor 0 al 7  | 0 - 4096 |
+| 37 - 44 | 0x25 - 0x2C | Temperatura cable 3 - Sensor 0 al 7  | 0 - 4096 |
+| 45 - 52 | 0x2D - 0x34 | Temperatura cable 4 - Sensor 0 al 7  | 0 - 4096 |
+| 53 - 60 | 0x35 - 0x3C | Temperatura cable 5 - Sensor 0 al 7  | 0 - 4096 |
+| 61 - 68 | 0x5D - 0x44 | Temperatura cable 6 - Sensor 0 al 7  | 0 - 4096 |
+| 69 - 76 | 0x45 - 0x4C | Temperatura cable 7 - Sensor 0 al 7  | 0 - 4096 |
+
