@@ -176,7 +176,7 @@
         <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="ToolFirmwareFilePath"
                   value="C:\Program Files/Microchip/MPLABX/v6.00/mplab_platform/mplablibs/modules/ext/PICKIT3.jar/PK3FW_015609.jam"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="false"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.debug-startup" value="Use system settings"/>
         <property key="debugoptions.reset-behaviour" value="Use system settings"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
@@ -622,7 +622,7 @@
         <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="ToolFirmwareFilePath"
                   value="C:\Program Files/Microchip/MPLABX/v6.00/mplab_platform/mplablibs/modules/ext/PICKIT3.jar/PK3FW_015609.jam"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="false"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.debug-startup" value="Use system settings"/>
         <property key="debugoptions.reset-behaviour" value="Use system settings"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
