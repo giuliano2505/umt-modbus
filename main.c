@@ -203,14 +203,25 @@ void TakeReading(void){
     config_all_sensors(TMPconfig);
     X10msDelay(100);
     int cableNumber;
+    int16_t maxSiloTemperature = 0x800;                //Define a minimum temperature
+    int16_t maxCableTemperature = 0x800;                //Define a minimum temperature
     for (cableNumber = 0; cableNumber < 8; cableNumber++) {
         totalActiveSensors += ReadAllSensorsOnCable(cableNumber,&status,temperatures);
         Slave.HoldingRegisters[MODBUS_HR_FIRST_STATUS_CABLE + cableNumber] = status;
         int sensorNumber;
         for (sensorNumber = 0; sensorNumber < 8; sensorNumber++) {
             Slave.HoldingRegisters[MODBUS_HR_FIRST_TEMPERATURE + 8 * cableNumber + sensorNumber] = temperatures[sensorNumber];
+            if(maxCableTemperature < temperatures[sensorNumber]){
+                maxCableTemperature = temperatures[sensorNumber];
+            }
         }
+        if(maxSiloTemperature < maxCableTemperature){
+            maxSiloTemperature = maxCableTemperature;
+        }
+        Slave.HoldingRegisters[MODBUS_HR_FIRST_MAX_CABLE + cableNumber] = maxCableTemperature;
+        maxCableTemperature = 0x800;
     }
+    Slave.HoldingRegisters[MODBUS_HR_MAX_SILO] = maxSiloTemperature;
     Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = totalActiveSensors;
     
     gpio_set(SVCC_EN_pin, 1); //Turn off Sensor power
