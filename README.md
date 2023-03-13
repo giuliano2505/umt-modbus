@@ -27,3 +27,4 @@ Se incluye una hoja de calculo con el mapeo de esos holding registers.
 | 78 - 85 | 0x45 - 0x4C | Temperatura cable 7 - Sensor 0 al 7  | -2048 <= x <= 2047 |
 
 Los valores de temperatura devueltos tienen una longitud de 2 bytes en complemento a 2 y se puede utilizar un int16_t para multiplicarlo luego por 0.0625 para obtener la temperatura leida.
+Si el valor leido es -2828 (0xF4F4) se considera un valor erroneo
