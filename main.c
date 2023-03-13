@@ -203,8 +203,8 @@ void TakeReading(void){
     config_all_sensors(TMPconfig);
     X10msDelay(100);
     int cableNumber;
-    int16_t maxSiloTemperature = 0x800;                //Define a minimum temperature
-    int16_t maxCableTemperature = 0x800;                //Define a minimum temperature
+    int16_t maxSiloTemperature = 0xF4F4;                //Define a minimum temperature
+    int16_t maxCableTemperature = 0xF4F4;                //Define a minimum temperature
     for (cableNumber = 0; cableNumber < 8; cableNumber++) {
         totalActiveSensors += ReadAllSensorsOnCable(cableNumber,&status,temperatures);
         Slave.HoldingRegisters[MODBUS_HR_FIRST_STATUS_CABLE + cableNumber] = status;
@@ -219,7 +219,7 @@ void TakeReading(void){
             maxSiloTemperature = maxCableTemperature;
         }
         Slave.HoldingRegisters[MODBUS_HR_FIRST_MAX_CABLE + cableNumber] = maxCableTemperature;
-        maxCableTemperature = 0x800;
+        maxCableTemperature = 0xF4F4;
     }
     Slave.HoldingRegisters[MODBUS_HR_MAX_SILO] = maxSiloTemperature;
     Slave.HoldingRegisters[MODBUS_HR_ACTIVE_SENSORS] = totalActiveSensors;

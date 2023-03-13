@@ -99,7 +99,7 @@ int16_t read_sensor(uint8_t sensorNumber, uint8_t * status){
         temperature <<= 4;             //Rotate 4 bits to left, to make place for LSBs
         temperature += (i2c_receive() >> 4); //Add the 4 LSBs from the received byte to temp
     } else{
-        temperature = 0x800;
+        temperature = 0xF4F4;
     }
     //The tmp100 does twos compliment but has the negative bit in the wrong spot, so test for it and correct if needed.
     if(temperature & (1<<11)){
