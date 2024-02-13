@@ -9,22 +9,22 @@ Se incluye una hoja de calculo con el mapeo de esos holding registers.
 ### Mapa de registros
 | Numero | Direccion(HEX) | Funcion  | Valores Posibles |
 | - | - | - | - |
-| 1 | 0x01 | Baudrate seleccionado   | 1200, 2400, 9600, 19200 |
-| 2 | 0x02 | Tiempo entre muestras (Segundos)   | 60 <= t <= 21600 |
-| 3 | 0x03 | Iniciar una medicion    | x > 0 Para iniciar|
-| 4 | 0x04 | Silo lleno | 0, 1 |
-| 5 | 0x05 | Sensores activos desde ultima lectura | 0 <= x <= 64 |
-| 6 | 0x06 | Temperatura maxima de silo | -2048 <= x <= 2047 |
-| 7 - 14 | 0x07 - 0x0E| Temperatura maxima por cable | -2048 <= x <= 2047 |
-| 15 - 22 | 0x0F - 0x16 | Sensores activos por cable | 0 , 255 |
-| 23 - 30 | 0x17 - 0x1E | Temperatura cable 0 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 31 - 38 | 0x1F - 0x26 | Temperatura cable 1 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 39 - 46 | 0x27 - 0x2E | Temperatura cable 2 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 47 - 54 | 0x2F - 0x36 | Temperatura cable 3 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 55 - 62 | 0x37 - 0x3E | Temperatura cable 4 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 63 - 70 | 0x3F - 0x46 | Temperatura cable 5 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 71 - 78 | 0x47 - 0x4E | Temperatura cable 6 - Sensor 0 al 7  | -2048 <= x <= 2047 |
-| 79 - 86 | 0x4F - 0x56 | Temperatura cable 7 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 0 | 0x00 | Baudrate seleccionado   | 1200, 2400, 9600, 19200 |
+| 1 | 0x01 | Tiempo entre muestras (Segundos)   | 60 <= t <= 21600 |
+| 2 | 0x02 | Iniciar una medicion    | x > 0 Para iniciar|
+| 3 | 0x03 | Silo lleno | 0, 1 |
+| 4 | 0x04 | Sensores activos desde ultima lectura | 0 <= x <= 64 |
+| 5 | 0x05 | Temperatura maxima de silo | -2048 <= x <= 2047 |
+| 6 - 13 | 0x06 - 0x0D| Temperatura maxima por cable | -2048 <= x <= 2047 |
+| 14 - 21 | 0x0E - 0x15 | Sensores activos por cable | 0 , 255 |
+| 22 - 29 | 0x16 - 0x1D | Temperatura cable 0 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 30 - 37 | 0x1E - 0x25 | Temperatura cable 1 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 38 - 45 | 0x26 - 0x2D | Temperatura cable 2 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 46 - 53 | 0x2E - 0x35 | Temperatura cable 3 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 54 - 61 | 0x36 - 0x3D | Temperatura cable 4 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 62 - 69 | 0x3E - 0x45 | Temperatura cable 5 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 70 - 77 | 0x46 - 0x4D | Temperatura cable 6 - Sensor 0 al 7  | -2048 <= x <= 2047 |
+| 78 - 85 | 0x4E - 0x55 | Temperatura cable 7 - Sensor 0 al 7  | -2048 <= x <= 2047 |
 
 Los valores de temperatura devueltos tienen una longitud de 2 bytes en complemento a 2 y se puede utilizar un int16_t para multiplicarlo luego por 0.0625 para obtener la temperatura leida.
 Si el valor leido es -2828 (0xF4F4) se considera un valor erroneo
